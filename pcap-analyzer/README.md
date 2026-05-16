@@ -81,34 +81,47 @@ sample.pcap
 
 ## How to run (local Python)
 
-### 1. Install dependencies
+### Prerequisites
+- **Python 3.9+** installed — check with `python --version`
+- **Docker Desktop** installed and **running** (whale icon in taskbar must be active)
+
+### Step 1 — Install Python dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 2. Start Elasticsearch + Kibana
+> On Windows if `pip` is not found, try `python -m pip install -r requirements.txt`
+
+### Step 2 — Start Elasticsearch + Kibana
 
 ```bash
 docker compose up -d
-# Wait ~30 s for Elasticsearch to become healthy
 ```
 
-### 3. Run the analyser
-
+Wait ~30 seconds for Elasticsearch to become healthy. You can check:
 ```bash
-# Option A – CLI argument
-python main.py sample.pcap
+docker compose ps
+# elasticsearch should show "healthy"
+```
 
-# Option B – env var
-PCAP_PATH=sample.pcap python main.py
+### Step 3 — Run the analyser
 
-# Option B – with auth (if xpack.security.enabled=true)
-ELASTIC_URL=http://localhost:9200 \
-ELASTIC_USERNAME=elastic \
-ELASTIC_PASSWORD=changeme \
-PCAP_PATH=sample.pcap \
-python main.py
+**Windows (Git Bash / PowerShell):**
+```bash
+# Git Bash
+ELASTIC_URL=http://localhost:9200 PCAP_PATH=sample.pcap python main.py
+
+# PowerShell
+$env:ELASTIC_URL="http://localhost:9200"; $env:PCAP_PATH="sample.pcap"; python main.py
+
+# Command Prompt (cmd.exe)
+set ELASTIC_URL=http://localhost:9200 && set PCAP_PATH=sample.pcap && python main.py
+```
+
+**Mac / Linux:**
+```bash
+ELASTIC_URL=http://localhost:9200 PCAP_PATH=sample.pcap python main.py
 ```
 
 The service logs progress every 1 000 packets and keeps running after
