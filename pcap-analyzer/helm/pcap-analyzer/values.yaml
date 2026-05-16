@@ -1,0 +1,29 @@
+# ── Docker image ──────────────────────────────────────────────────────────────
+image:
+  repository: pcap-analyzer   # replace with your registry/image
+  tag: latest
+  pullPolicy: IfNotPresent
+
+# ── Elasticsearch connection ───────────────────────────────────────────────────
+elasticsearch:
+  url: "http://elasticsearch:9200"
+  index: "pcap-packets"
+  username: ""        # leave empty if auth is disabled
+  password: ""        # leave empty if auth is disabled
+
+# ── Prometheus metrics ─────────────────────────────────────────────────────────
+metrics:
+  port: 9100
+
+# ── PCAP file ─────────────────────────────────────────────────────────────────
+# The pcap file must exist inside the container.
+# Mount it via a PersistentVolume or a ConfigMap (for small files).
+pcap:
+  path: "/data/sample.pcap"
+
+# ── Volume to mount the pcap file from ────────────────────────────────────────
+# Set enabled: true and fill in the PVC name if you pre-created one.
+pcapVolume:
+  enabled: false
+  claimName: pcap-pvc
+  mountPath: /data

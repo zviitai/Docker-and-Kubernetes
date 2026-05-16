@@ -1,0 +1,6 @@
+apiVersion: v2
+name: pcap-analyzer
+description: Reads a PCAP file, writes packets to Elasticsearch, exposes Prometheus metrics
+type: application
+version: 0.1.0
+appVersion: "1.0.0"

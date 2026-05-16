@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-pcap-analyzer
+  labels:
+    app: pcap-analyzer
+spec:
+  replicas: 1        # one instance is enough – pcap reading is single-threaded
+  selector:
+    matchLabels:
+      app: pcap-analyzer
+  template:
+    metadata:
+      labels:
+        app: pcap-analyzer
+      annotations:
+        # Tells Prometheus to scrape this pod automatically
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "{{ .Values.metrics.port }}"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+        - name: pcap-analyzer
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: ELASTIC_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-config
+                  key: ELASTIC_URL
+            - name: ELASTIC_INDEX
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-config
+                  key: ELASTIC_INDEX
+            - name: METRICS_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-config
+                  key: METRICS_PORT
+            - name: PCAP_PATH
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-config
+                  key: PCAP_PATH
+            {{- if .Values.elasticsearch.username }}
+            - name: ELASTIC_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-secret
+                  key: ELASTIC_USERNAME
+            - name: ELASTIC_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-secret
+                  key: ELASTIC_PASSWORD
+            {{- end }}
+          ports:
+            - name: metrics
+              containerPort: {{ .Values.metrics.port }}
+              protocol: TCP
+          {{- if .Values.pcapVolume.enabled }}
+          volumeMounts:
+            - name: pcap-data
+              mountPath: {{ .Values.pcapVolume.mountPath }}
+          {{- end }}
+      {{- if .Values.pcapVolume.enabled }}
+      volumes:
+        - name: pcap-data
+          persistentVolumeClaim:
+            claimName: {{ .Values.pcapVolume.claimName }}
+      {{- end }}
