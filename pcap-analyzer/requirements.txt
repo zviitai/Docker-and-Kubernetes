@@ -1,0 +1,4 @@
+dpkt==1.9.8
+elasticsearch==8.13.0
+prometheus_client==0.20.0
+pytest==8.2.0
