@@ -74,7 +74,7 @@ def parse_packet(ts: float, raw: bytes) -> dict:
       - Non-IP frames (ARP, etc.) — stored with what we CAN extract
     """
     doc = {
-        "timestamp":     datetime.datetime.utcfromtimestamp(ts).strftime("%Y-%m-%dT%H:%M:%S.%f") + "Z",
+        "timestamp":     datetime.datetime.fromtimestamp(ts, datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%f") + "Z",
         "packet_length": len(raw),
         "src_ip":        None,
         "dst_ip":        None,
